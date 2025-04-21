@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/Spok95/bookgame/game"
 	"html/template"
 	"log"
 	"math/rand/v2"
@@ -25,7 +26,7 @@ type Player struct {
 }
 
 var story map[string]Paragraph
-var player Player
+var player *game.Player
 
 func main() {
 	// Загружаем story.json
@@ -44,6 +45,7 @@ func main() {
 	http.Handle("/static", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", paragraphHandler)
 	http.HandleFunc("/new", newGameHandler)
+	http.HandleFunc("/save", savePlayerHandler)
 
 	log.Println("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -68,21 +70,24 @@ func paragraphHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Number   string
-		Text     string
-		Option   []string
-		ImageURL string
-		MusicURL string
-		Player   Player
+		Number      string
+		Text        string
+		Option      []string
+		ImageURL    string
+		MusicURL    string
+		Player      *game.Player
+		SaveSuccess bool
 	}{
-		Number:   para,
-		Text:     p.Text,
-		Option:   p.Options,
-		ImageURL: "/static/images/" + para,
-		MusicURL: "/static/music/default.mp3",
-		Player:   player,
+		Number:      para,
+		Text:        p.Text,
+		Option:      p.Options,
+		ImageURL:    "/static/images/" + para,
+		MusicURL:    "/static/music/default.mp3",
+		Player:      player,
+		SaveSuccess: r.URL.Query().Get("save") == "ok",
 	}
 
+	player.CurrentPara = para
 	tmpl.Execute(w, data)
 }
 
@@ -101,8 +106,8 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		skill := r.FormValue("skill")
 
-		// Примитивная генерация характеристик
-		player = Player{
+		// Генерация характеристик
+		player = &game.Player{
 			Name:     name,
 			Skill:    skill,
 			Dex:      6 + randInt(1, 6),
@@ -118,4 +123,20 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 
 func randInt(min, max int) int {
 	return rand.IntN(max-min+1) + min
+}
+
+func savePlayerHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	err := player.Save("player/" + player.Name + ".json")
+	if err != nil {
+		http.Error(w, "Ошибка сохранения игрока: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	para := player.CurrentPara
+	http.Redirect(w, r, "/?para="+para+"&save=ok", http.StatusSeeOther)
 }

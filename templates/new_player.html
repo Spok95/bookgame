@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Создание персонажа</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f5f5f5; }
+    form { background: white; padding: 2em; border-radius: 8px; max-width: 500px; margin: auto; }
+    label, select, input { display: block; margin: 1em 0; width: 100%; }
+    input[type="submit"] { background: #0077cc; color: white; padding: 0.5em; border: none; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<form method="POST">
+  <h2>Создание персонажа</h2>
+
+  <label>Имя:</label>
+  <input type="text" name="name" required>
+
+  <label>Выберите боевое искусство:</label>
+  <select name="skill" required>
+    <option value="Тайный удар шпагой">Тайный удар шпагой</option>
+    <option value="Шпага и кинжал">Бой шпагой и кинжалом</option>
+    <option value="Два пистолета">Стрельба из двух пистолетов</option>
+    <option value="Левая рука">Фехтование левой рукой</option>
+    <option value="Плавание">Плавание</option>
+  </select>
+
+  <input type="submit" value="Начать игру">
+</form>
+</body>
+</html>

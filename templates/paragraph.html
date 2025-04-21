@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Параграф {{.Number}}</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f9f9f9;
+            padding: 2em;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1em;
+        }
+        .options a {
+            display: block;
+            margin-top: 1em;
+            font-weight: bold;
+            color: #2a61d0;
+            text-decoration: none;
+        }
+        .options a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="background:#eee; padding:1em; border-radius:8px; margin-bottom:1em;">
+        <strong>👤 Персонаж:</strong> {{.Player.Name}}<br>
+        ⚔️ Навык: {{.Player.Skill}}<br>
+        🧠 Ловкость: {{.Player.Dex}} |
+        💪 Сила: {{.Player.Strength}} |
+        🍀 Удача: {{.Player.Luck}} |
+        🎖️ Честь: {{.Player.Honor}}
+    </div>
+
+    <h2>Параграф {{.Number}}</h2>
+
+    <img src="{{.ImageURL}}" alt="Иллюстрация" onerror="this.style.display='none'">
+
+    <p>{{.Text}}</p>
+
+    <!-- Будущая музыка -->
+    <!--
+    <audio controls autoplay loop>
+      <source src="{{.MusicURL}}" type="audio/mpeg">
+    </audio>
+    -->
+
+    <div class="options">
+        <h3>Переходы:</h3>
+        {{range .Options}}
+        <a href="/?para={{.}}">→ Параграф {{.}}</a>
+        {{else}}
+        <p><i>Нет доступных переходов.</i></p>
+        {{end}}
+    </div>
+</div>
+</body>
+</html>

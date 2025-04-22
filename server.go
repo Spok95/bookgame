@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Spok95/bookgame/game"
 	"html/template"
 	"log"
@@ -29,6 +30,16 @@ var story map[string]Paragraph
 var player *game.Player
 
 func main() {
+	playerPath := "players/Kostya.json"
+	if _, err := os.Stat(playerPath); err == nil {
+		p, err := game.LoadPlayer("Kostya")
+		if err == nil {
+			player = p
+			fmt.Println("✅ Игрок Kostya загружен автоматически")
+		} else {
+			fmt.Println("❌ Не удалось загрузить игрока Kostya:", err)
+		}
+	}
 	// Загружаем story.json
 	file, err := os.Open("data/story.json")
 	if err != nil {
@@ -46,6 +57,7 @@ func main() {
 	http.HandleFunc("/", paragraphHandler)
 	http.HandleFunc("/new", newGameHandler)
 	http.HandleFunc("/save", savePlayerHandler)
+	http.HandleFunc("/load", loadPlayerHandler)
 
 	log.Println("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -87,18 +99,17 @@ func paragraphHandler(w http.ResponseWriter, r *http.Request) {
 		SaveSuccess: r.URL.Query().Get("save") == "ok",
 	}
 
+	if player == nil {
+		http.Redirect(w, r, "/new", http.StatusSeeOther)
+		return
+	}
 	player.CurrentPara = para
 	tmpl.Execute(w, data)
 }
 
 func newGameHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("templates/new_player.html")
-		if err != nil {
-			http.Error(w, "Template error", 500)
-			return
-		}
-		tmpl.Execute(w, nil)
+	if player != nil {
+		http.Redirect(w, r, "/?para="+player.CurrentPara, http.StatusSeeOther)
 		return
 	}
 
@@ -106,19 +117,22 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 		skill := r.FormValue("skill")
 
-		// Генерация характеристик
-		player = &game.Player{
-			Name:     name,
-			Skill:    skill,
-			Dex:      6 + randInt(1, 6),
-			Strength: 12 + randInt(1, 6) + randInt(1, 6),
-			Luck:     randInt(1, 6),
-			Honor:    3,
-		}
+		dex := randInt(1, 6) + 6
+		str := randInt(1, 6) + randInt(1, 6) + 12
+		luck := randInt(1, 6)
 
-		// Переход в параграф 1
+		player = game.NewPlayer(name, skill, dex, str, luck)
+
 		http.Redirect(w, r, "/?para=1", http.StatusSeeOther)
+		return
 	}
+
+	tmpl, err := template.ParseFiles("templates/new_player.html")
+	if err != nil {
+		http.Error(w, "Ошибка загрузки шаблона", http.StatusInternalServerError)
+		return
+	}
+	tmpl.Execute(w, nil)
 }
 
 func randInt(min, max int) int {
@@ -139,4 +153,23 @@ func savePlayerHandler(w http.ResponseWriter, r *http.Request) {
 
 	para := player.CurrentPara
 	http.Redirect(w, r, "/?para="+para+"&save=ok", http.StatusSeeOther)
+}
+
+func loadPlayerHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		http.Error(w, "Не указано имя игрока", http.StatusBadRequest)
+		return
+	}
+
+	loadedPlayer, err := game.LoadPlayer(name)
+	if err != nil {
+		http.Error(w, "Ошибка загрузки игрока: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	player = loadedPlayer
+
+	// Переход на последний посещённый параграф
+	http.Redirect(w, r, "/?para="+player.CurrentPara, http.StatusSeeOther)
 }

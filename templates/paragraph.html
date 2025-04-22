@@ -37,10 +37,10 @@
 <body>
 <div class="container">
     <div style="background:#eee; padding:1em; border-radius:8px; margin-bottom:1em;">
-        <strong>👤 Персонаж:</strong> {{.Player.Name}}<br>
         <form method="POST" action="/save">
             <input type="submit" value="💾 Сохранить игрока">
         </form>
+        <strong>👤 Персонаж:</strong> {{.Player.Name}}<br>
         ⚔️ Навык: {{.Player.Skill}}<br>
         🧠 Ловкость: {{.Player.Dex}} |
         💪 Сила: {{.Player.Strength}} |

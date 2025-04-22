@@ -49,6 +49,7 @@ func mainMenuHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func newGameHandler(w http.ResponseWriter, r *http.Request) {
+	player = nil
 	if r.Method == http.MethodPost {
 		name := r.FormValue("name")
 		skill := r.FormValue("skill")
@@ -141,6 +142,8 @@ func loadPlayerHandler(w http.ResponseWriter, r *http.Request) {
 		player = p
 		http.Redirect(w, r, "/para?para="+player.CurrentPara, http.StatusSeeOther)
 		return
+	} else {
+		player = nil
 	}
 
 	renderLoadForm(w, "")

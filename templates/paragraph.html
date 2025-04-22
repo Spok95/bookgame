@@ -53,7 +53,7 @@
         🎖️ Честь: {{.Player.Honor}}
     </div>
 
-    <h2>Параграф {{.Number}}</h2>
+    <h2>{{.Number}}</h2>
 
     <img src="{{.ImageURL}}" alt="Иллюстрация" onerror="this.style.display='none'">
 
@@ -74,7 +74,7 @@
     <div class="options">
         <h3>Переходы:</h3>
         {{range .Options}}
-        <a href="/?para={{.}}">→ Параграф {{.}}</a>
+        <a href="/para?para={{.}}">→ {{.}}</a>
         {{else}}
         <p><i>Нет доступных переходов.</i></p>
         {{end}}

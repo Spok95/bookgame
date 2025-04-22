@@ -13,6 +13,13 @@ import (
 
 var story *game.Story
 var player *game.Player
+var templates = template.Must(template.New("").Funcs(template.FuncMap{
+	"contains": contains,
+}).ParseGlob("templates/*.html"))
+
+func contains(s, substr string) bool {
+	return strings.Contains(s, substr)
+}
 
 func main() {
 	// Загрузка сюжета
@@ -37,6 +44,10 @@ func main() {
 	http.HandleFunc("/load", loadPlayerHandler)
 	http.HandleFunc("/players", listPlayersHandler)
 	http.HandleFunc("/delete", deletePlayerHandler)
+	http.HandleFunc("/fight", fightHandler)
+	http.HandleFunc("/rules", rulesHandler)
+	http.HandleFunc("/intro", introHandler)
+	http.HandleFunc("/start", startHandler)
 
 	// Статика
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -49,6 +60,17 @@ func mainMenuHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
+func introHandler(w http.ResponseWriter, r *http.Request) {
+	err := templates.ExecuteTemplate(w, "intro.html", nil)
+	if err != nil {
+		http.Error(w, "Ошибка отображения предисловия: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func startHandler(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/para?para=1", http.StatusSeeOther)
+}
+
 func newGameHandler(w http.ResponseWriter, r *http.Request) {
 	player = nil
 	if r.Method == http.MethodPost {
@@ -59,7 +81,7 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 		luck := randInt(1, 6)
 
 		player = game.NewPlayer(name, skill, dex, str, luck)
-		http.Redirect(w, r, "/para?para=1", http.StatusSeeOther)
+		http.Redirect(w, r, "/intro", http.StatusSeeOther)
 		return
 	}
 
@@ -67,44 +89,60 @@ func newGameHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
+func rulesHandler(w http.ResponseWriter, r *http.Request) {
+	err := templates.ExecuteTemplate(w, "rules.html", nil)
+	if err != nil {
+		http.Error(w, "Ошибка отображения правил: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func paragraphHandler(w http.ResponseWriter, r *http.Request) {
 	if player == nil {
-		http.Redirect(w, r, "/new", http.StatusSeeOther)
+		http.Redirect(w, r, "/menu", http.StatusSeeOther)
 		return
 	}
 
 	para := r.URL.Query().Get("para")
 	if para == "" {
-		para = "1"
+		para = player.CurrentPara
 	}
 
-	p, ok := story.Get(para)
+	p, ok := story.Paragraphs[para]
 	if !ok {
-		http.NotFound(w, r)
+		http.Error(w, "Параграф не найден", http.StatusNotFound)
 		return
 	}
 
 	player.CurrentPara = para
 
-	tmpl, _ := template.ParseFiles("templates/paragraph.html")
 	data := struct {
+		Player      *game.Player
 		Number      string
 		Text        string
-		Option      []string
+		Options     []string
 		ImageURL    string
 		MusicURL    string
-		Player      *game.Player
 		SaveSuccess bool
 	}{
+		Player:      player,
 		Number:      para,
 		Text:        p.Text,
-		Option:      p.Options,
+		Options:     p.Options,
 		ImageURL:    "/static/images/" + para + ".jpg",
-		MusicURL:    "/static/music/default.mp3",
-		Player:      player,
+		MusicURL:    "/static/music/" + para + ".mp3",
 		SaveSuccess: r.URL.Query().Get("save") == "ok",
 	}
-	tmpl.Execute(w, data)
+
+	if strings.Contains(p.Text, "#fight:") {
+		http.Redirect(w, r, "/fight?para="+para, http.StatusSeeOther)
+		return
+	}
+
+	err := templates.ExecuteTemplate(w, "paragraph.html", data)
+	if err != nil {
+		http.Error(w, "Ошибка шаблона: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func savePlayerHandler(w http.ResponseWriter, r *http.Request) {
@@ -197,6 +235,46 @@ func listPlayersHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, struct {
 		Names []string
 	}{names})
+}
+
+func fightHandler(w http.ResponseWriter, r *http.Request) {
+	if player == nil {
+		http.Redirect(w, r, "/new", http.StatusSeeOther)
+		return
+	}
+
+	para := r.URL.Query().Get("para")
+	if para == "" {
+		para = player.CurrentPara
+	}
+
+	p, ok := story.Paragraphs[para]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	enemy, found := game.ParseFightTag(p.Text)
+	if !found {
+		http.Error(w, "В параграфе нет информации о враге", http.StatusNotFound)
+		return
+	}
+
+	result := game.Fight(player, enemy)
+	player.CurrentPara = result.ParaAfter
+
+	data := struct {
+		Player *game.Player
+		game.FightResult
+	}{
+		Player:      player,
+		FightResult: result,
+	}
+
+	err := templates.ExecuteTemplate(w, "fight.html", data)
+	if err != nil {
+		http.Error(w, "Ошибка шаблона: "+err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func randInt(min, max int) int {

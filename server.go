@@ -156,20 +156,46 @@ func savePlayerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loadPlayerHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		name := r.FormValue("name")
+		p, err := game.LoadPlayer(name)
+		if err != nil {
+			renderLoadForm(w, "Игрок не найден: "+name)
+			return
+		}
+
+		player = p
+		http.Redirect(w, r, "/?para="+player.CurrentPara, http.StatusSeeOther)
+		return
+	}
+
+	// GET с query-параметром ?name=...
 	name := r.URL.Query().Get("name")
-	if name == "" {
-		http.Error(w, "Не указано имя игрока", http.StatusBadRequest)
+	if name != "" {
+		loadedPlayer, err := game.LoadPlayer(name)
+		if err != nil {
+			http.Error(w, "Ошибка загрузки игрока: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		player = loadedPlayer
+		http.Redirect(w, r, "/?para="+player.CurrentPara, http.StatusSeeOther)
 		return
 	}
+	// Просто GET — отрисовать форму
+	renderLoadForm(w, "")
+}
 
-	loadedPlayer, err := game.LoadPlayer(name)
+func renderLoadForm(w http.ResponseWriter, errorMsg string) {
+	tmpl, err := template.ParseFiles("templates/load_player.html")
 	if err != nil {
-		http.Error(w, "Ошибка загрузки игрока: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Ошибка загрузки формы", http.StatusInternalServerError)
 		return
 	}
 
-	player = loadedPlayer
-
-	// Переход на последний посещённый параграф
-	http.Redirect(w, r, "/?para="+player.CurrentPara, http.StatusSeeOther)
+	data := struct {
+		Error string
+	}{
+		Error: errorMsg,
+	}
+	tmpl.Execute(w, data)
 }

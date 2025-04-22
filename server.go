@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Paragraph struct {
@@ -58,6 +59,7 @@ func main() {
 	http.HandleFunc("/new", newGameHandler)
 	http.HandleFunc("/save", savePlayerHandler)
 	http.HandleFunc("/load", loadPlayerHandler)
+	http.HandleFunc("/players", listPlayersHandler)
 
 	log.Println("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -198,4 +200,28 @@ func renderLoadForm(w http.ResponseWriter, errorMsg string) {
 		Error: errorMsg,
 	}
 	tmpl.Execute(w, data)
+}
+
+func listPlayersHandler(w http.ResponseWriter, r *http.Request) {
+	files, err := os.ReadDir("players")
+	if err != nil {
+		http.Error(w, "Ошибка чтения папки players", http.StatusInternalServerError)
+		return
+	}
+
+	var names []string
+	for _, f := range files {
+		if !f.IsDir() && strings.HasSuffix(f.Name(), ".json") {
+			name := strings.TrimSuffix(f.Name(), ".json")
+			names = append(names, name)
+		}
+	}
+
+	tmpl, err := template.ParseFiles("templates/load_list.html")
+	if err != nil {
+		http.Error(w, "Ошибка шаблона", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, struct{ Names []string }{names})
 }

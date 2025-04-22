@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Выбор игрока</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="card">
+    <h2>Выберите игрока</h2>
+    <ul>
+        {{range .Names}}
+        <li><a href="/load?name={{.}}">{{.}}</a></li>
+        {{else}}
+        <li>Нет сохранённых игроков.</li>
+        {{end}}
+    </ul>
+</div>
+</body>
+</html>

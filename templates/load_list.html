@@ -10,7 +10,13 @@
     <h2>Выберите игрока</h2>
     <ul>
         {{range .Names}}
-        <li><a href="/load?name={{.}}">{{.}}</a></li>
+        <li>
+            <a href="/load?name={{.}}">{{.}}</a>
+            <form method="POST" action="/delete" style="display: inline;">
+                <input type="hidden" name="name" value="{{.}}">
+                <button type="submit" onclick="return confirm('Удалить игрока {{.}}?')">✖</button>
+            </form>
+        </li>
         {{else}}
         <li>Нет сохранённых игроков.</li>
         {{end}}

@@ -35,13 +35,13 @@
     </style>
 </head>
 <body>
-<div class="nav-buttons">
-    <form action="/" method="get" style="display: inline;"><button>🏠 Меню</button></form>
-    <form action="/players" method="get" style="display: inline;"><button>🔄 Игроки</button></form>
-    <form action="/new" method="get" style="display: inline;"><button>🎮 Новая игра</button></form>
-</div>
 <div class="container">
     <div style="background:#eee; padding:1em; border-radius:8px; margin-bottom:1em;">
+        <div class="nav-buttons">
+            <form action="/" method="get" style="display: inline;"><button>🏠 В главное меню</button></form>
+            <form action="/players" method="get" style="display: inline;"><button>🔄 К списку персонажей</button></form>
+            <form action="/new" method="get" style="display: inline;"><button>🎮 Новая игра</button></form>
+        </div>
         <form method="POST" action="/save">
             <input type="submit" value="💾 Сохранить игрока">
         </form>

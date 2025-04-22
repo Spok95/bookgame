@@ -36,6 +36,7 @@ func main() {
 	http.HandleFunc("/save", savePlayerHandler)
 	http.HandleFunc("/load", loadPlayerHandler)
 	http.HandleFunc("/players", listPlayersHandler)
+	http.HandleFunc("/delete", deletePlayerHandler)
 
 	// Статика
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -147,6 +148,28 @@ func loadPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderLoadForm(w, "")
+}
+
+func deletePlayerHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Метод не разрешён", http.StatusSeeOther)
+		return
+	}
+
+	name := r.FormValue("name")
+	if name == "" {
+		http.Error(w, "Имя не указано", http.StatusBadRequest)
+		return
+	}
+
+	err := os.Remove("players/" + name + ".json")
+	if err != nil {
+		http.Error(w, "Ошибка удаления игрока: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("🗑 Игрок %s удалён", name)
+	http.Redirect(w, r, "/players", http.StatusSeeOther)
 }
 
 func renderLoadForm(w http.ResponseWriter, errMsg string) {

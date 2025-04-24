@@ -3,30 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <title>Создание персонажа</title>
-  <style>
-    body { font-family: sans-serif; padding: 2em; background: #f5f5f5; }
-    form { background: white; padding: 2em; border-radius: 8px; max-width: 500px; margin: auto; }
-    label, select, input { display: block; margin: 1em 0; width: 100%; }
-    input[type="submit"] { background: #0077cc; color: white; padding: 0.5em; border: none; border-radius: 4px; cursor: pointer; }
-  </style>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<form method="POST">
-  <h2>Создание персонажа</h2>
+<div class="container">
+  <h2>Создание нового героя</h2>
+  <form action="/new" method="post">
+    <label for="name">Имя:</label>
+    <input type="text" id="name" name="name" required><br><br>
 
-  <label>Имя:</label>
-  <input type="text" name="name" required>
+    <label for="skill">Навык:</label>
+    <select name="skill" id="skill">
+      <option value="Тайный удар шпагой">Тайный удар шпагой</option>
+      <option value="Шпага и кинжал">Бой шпагой и кинжалом</option>
+      <option value="Два пистолета">Стрельба из двух пистолетов</option>
+      <option value="Левая рука">Фехтование левой рукой</option>
+      <option value="Плавание">Плавание</option>
+    </select><br><br>
 
-  <label>Выберите боевое искусство:</label>
-  <select name="skill" required>
-    <option value="Тайный удар шпагой">Тайный удар шпагой</option>
-    <option value="Шпага и кинжал">Бой шпагой и кинжалом</option>
-    <option value="Два пистолета">Стрельба из двух пистолетов</option>
-    <option value="Левая рука">Фехтование левой рукой</option>
-    <option value="Плавание">Плавание</option>
-  </select>
-
-  <input type="submit" value="Начать путешествие">
-</form>
+    <button type="submit">🎮 Начать игру</button>
+  </form>
+</div>
 </body>
 </html>

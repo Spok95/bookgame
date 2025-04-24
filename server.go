@@ -65,6 +65,18 @@ func introHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Ошибка отображения предисловия: "+err.Error(), http.StatusInternalServerError)
 	}
+	if !hasItem(player.Inventory, "15 экю") {
+		player.Inventory = append(player.Inventory, "15 экю")
+	}
+}
+
+func hasItem(inv []string, item string) bool {
+	for _, v := range inv {
+		if v == item {
+			return true
+		}
+	}
+	return false
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {

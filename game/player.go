@@ -9,13 +9,14 @@ import (
 
 // Player — структура, описывающая персонажа игрока
 type Player struct {
-	Name        string `json:"name"`
-	Skill       string `json:"skill"`
-	Dex         int    `json:"dex"`
-	Strength    int    `json:"strength"`
-	Luck        int    `json:"luck"`
-	Honor       int    `json:"honor"`
-	CurrentPara string `json:"current_para"`
+	Name        string   `json:"name"`
+	Skill       string   `json:"skill"`
+	Dex         int      `json:"dex"`
+	Strength    int      `json:"strength"`
+	Luck        int      `json:"luck"`
+	Honor       int      `json:"honor"`
+	CurrentPara string   `json:"current_para"`
+	Inventory   []string `json:"inventory"`
 }
 
 // NewPlayer — создаёт нового игрока
@@ -28,6 +29,7 @@ func NewPlayer(name, skill string, dex, strength, luck int) *Player {
 		Luck:        luck,
 		Honor:       3,
 		CurrentPara: "1",
+		Inventory:   make([]string, 0),
 	}
 }
 

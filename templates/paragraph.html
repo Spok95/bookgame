@@ -3,54 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Параграф {{.Number}}</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #f9f9f9;
-            padding: 2em;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 2em;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-bottom: 1em;
-        }
-        .options a {
-            display: block;
-            margin-top: 1em;
-            font-weight: bold;
-            color: #2a61d0;
-            text-decoration: none;
-        }
-        .options a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <div class="container">
-    <div style="background:#eee; padding:1em; border-radius:8px; margin-bottom:1em;">
-        <div class="nav-buttons">
-            <form action="/" method="get" style="display: inline;"><button>🏠 В главное меню</button></form>
-            <form action="/players" method="get" style="display: inline;"><button>🔄 К списку персонажей</button></form>
-            <form action="/new" method="get" style="display: inline;"><button>🎮 Новая игра</button></form>
+
+    <div class="top-panel">
+        <div class="player-info">
+            <p><strong>👤 Персонаж:</strong> {{.Player.Name}}</p>
+            <p>⚔️ Навык: {{.Player.Skill}}</p>
+            <p>🧠 Ловкость: {{.Player.Dex}} |
+                💪 Сила: {{.Player.Strength}} |
+                🍀 Удача: {{.Player.Luck}} |
+                🎖️ Честь: {{.Player.Honor}}</p>
         </div>
-        <form method="POST" action="/save">
-            <input type="submit" value="💾 Сохранить игрока">
-        </form>
-        <strong>👤 Персонаж:</strong> {{.Player.Name}}<br>
-        ⚔️ Навык: {{.Player.Skill}}<br>
-        🧠 Ловкость: {{.Player.Dex}} |
-        💪 Сила: {{.Player.Strength}} |
-        🍀 Удача: {{.Player.Luck}} |
-        🎖️ Честь: {{.Player.Honor}}
+
+        {{if .Player.Inventory}}
+        <div class="inventory">
+            <h3>👜 Инвентарь</h3>
+            <ul>
+                {{range .Player.Inventory}}<li>{{.}}</li>{{end}}
+            </ul>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="button-row">
+        <a href="/" class="button">🏠 В меню</a>
+        <a href="/players" class="button">📘 Список персонажей</a>
+        <a href="/new" class="button">🎮 Новая игра</a>
+        <a href="/save" class="button">💾 Сохранить</a>
     </div>
 
     <h2>{{.Number}}</h2>
@@ -60,21 +42,13 @@
     <p>{{.Text}}</p>
 
     {{if .SaveSuccess}}
-    <p style="color: green;"><strong>✅ Игрок успешно сохранён!</strong></p>
+    <p class="save-success"><strong>✅ Сохранено!</strong></p>
     {{end}}
-
-
-    <!-- Будущая музыка -->
-    <!--
-    <audio controls autoplay loop>
-      <source src="{{.MusicURL}}" type="audio/mpeg">
-    </audio>
-    -->
 
     <div class="options">
         <h3>Переходы:</h3>
         {{range .Options}}
-        <a href="/para?para={{.}}">→ {{.}}</a>
+        <a href="/para?para={{.}}" class="button">→ {{.}}</a>
         {{else}}
         <p><i>Нет доступных переходов.</i></p>
         {{end}}

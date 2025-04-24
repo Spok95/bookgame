@@ -1,9 +1,12 @@
 {
   "name": "Kostya",
-  "skill": "Шпага и кинжал",
-  "dex": 10,
-  "strength": 16,
-  "luck": 3,
+  "skill": "Тайный удар шпагой",
+  "dex": 8,
+  "strength": 15,
+  "luck": 4,
   "honor": 3,
-  "current_para": "282"
+  "current_para": "1",
+  "inventory": [
+    "15 экю"
+  ]
 }

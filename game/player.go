@@ -17,6 +17,7 @@ type Player struct {
 	Honor       int      `json:"honor"`
 	CurrentPara string   `json:"current_para"`
 	Inventory   []string `json:"inventory"`
+	Money       Money    `json:"money"`
 }
 
 // NewPlayer — создаёт нового игрока
@@ -30,6 +31,7 @@ func NewPlayer(name, skill string, dex, strength, luck int) *Player {
 		Honor:       3,
 		CurrentPara: "1",
 		Inventory:   make([]string, 0),
+		Money:       Money{Coins: 15, Sous: 0},
 	}
 }
 
@@ -68,6 +70,7 @@ func (p *Player) DebugPrint() {
 	fmt.Println("Сила:", p.Strength)
 	fmt.Println("Удача:", p.Luck)
 	fmt.Println("Честь:", p.Honor)
+	fmt.Println("Экю:", p.Money.Coins, "| Су:", p.Money.Sous)
 	fmt.Println("Параграф:", p.CurrentPara)
 	fmt.Println("------------------------------------")
 }

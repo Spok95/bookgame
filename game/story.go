@@ -7,13 +7,13 @@ import (
 
 // Paragraph описывает один параграф книги
 type Paragraph struct {
-	Text    string   `json:"text"`
-	Options []string `json:"options"`
+	Text string   `json:"text"`
+	Tags []string `json:"tags,omitempty"`
 }
 
 // Story хранит карту всех параграфов
 type Story struct {
-	Paragraphs map[string]Paragraph
+	Paragraphs map[string]Paragraph `json:"paragraphs"`
 }
 
 // LoadStory загружает story.json в память

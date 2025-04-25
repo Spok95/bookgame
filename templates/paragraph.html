@@ -7,7 +7,6 @@
 </head>
 <body>
 <div class="container">
-
     <div class="top-panel">
         <div class="player-info">
             <p><strong>👤 Персонаж:</strong> {{.Player.Name}}</p>
@@ -40,20 +39,13 @@
 
     <img src="{{.ImageURL}}" alt="Иллюстрация" onerror="this.style.display='none'">
 
-    <p>{{.Text}}</p>
+    <div class="paragraph">
+        {{.Text}}
+    </div>
 
     {{if .SaveSuccess}}
     <p class="save-success"><strong>✅ Сохранено!</strong></p>
     {{end}}
-
-    <div class="options">
-        <h3>Переходы:</h3>
-        {{range .Options}}
-        <a href="/para?para={{.}}" class="button">→ {{.}}</a>
-        {{else}}
-        <p><i>Нет доступных переходов.</i></p>
-        {{end}}
-    </div>
 </div>
 </body>
 </html>

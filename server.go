@@ -130,16 +130,14 @@ func paragraphHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Player      *game.Player
 		Number      string
-		Text        string
-		Options     []string
+		Text        template.HTML
 		ImageURL    string
 		MusicURL    string
 		SaveSuccess bool
 	}{
 		Player:      player,
 		Number:      para,
-		Text:        p.Text,
-		Options:     p.Options,
+		Text:        template.HTML(p.Text),
 		ImageURL:    "/static/images/" + para + ".jpg",
 		MusicURL:    "/static/music/" + para + ".mp3",
 		SaveSuccess: r.URL.Query().Get("save") == "ok",

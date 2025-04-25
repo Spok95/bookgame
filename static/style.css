@@ -113,3 +113,13 @@ p {
 .options a {
     margin-right: 0.5em;
 }
+
+.paragraph a {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.paragraph a:hover {
+    text-decoration: underline;
+}

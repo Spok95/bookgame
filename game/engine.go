@@ -1,7 +1,7 @@
 package game
 
 import (
-	"math/rand"
+	"math/rand/v2"
 	"strconv"
 	"strings"
 )
@@ -66,7 +66,7 @@ func Fight(p *Player, enemy Enemy) FightResult {
 }
 
 func ParseFightTag(text string) (Enemy, bool) {
-	start := strings.Index(text, "#fight:")
+	start := strings.Index(text, "fight:")
 	if start == -1 {
 		return Enemy{}, false
 	}
@@ -101,7 +101,7 @@ func atoi(s string) int {
 }
 
 func RandInt(min, max int) int {
-	return rand.Intn(max-min+1) + min
+	return rand.IntN(max-min+1) + min
 }
 
 func (p *Player) AddItem(item string) bool {

@@ -5,20 +5,41 @@ import (
 	"github.com/Spok95/bookgame/game"
 	"html/template"
 	"log"
-	"math/rand/v2"
+	rand "math/rand/v2"
 	"net/http"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
 var story *game.Story
 var player *game.Player
+var skipFightCheck bool
+var remainingEnemies int
+var victoryPara string
+var defeatPara string
 var templates = template.Must(template.New("").Funcs(template.FuncMap{
 	"contains": contains,
 }).ParseGlob("templates/*.html"))
 
 func contains(s, substr string) bool {
 	return strings.Contains(s, substr)
+}
+
+func getCurrentPlayer(r *http.Request) *game.Player {
+	return player
+}
+
+func extractNextParas(text string) (victoryPara string, defeatPara string) {
+	r := regexp.MustCompile(`/para\?para=(\d+)`)
+	matches := r.FindAllStringSubmatch(text, -1)
+	if len(matches) >= 2 {
+		return matches[0][1], matches[1][1]
+	} else if len(matches) == 1 {
+		return matches[0][1], ""
+	}
+	return "", ""
 }
 
 func main() {
@@ -109,23 +130,34 @@ func rulesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func paragraphHandler(w http.ResponseWriter, r *http.Request) {
-	if player == nil {
-		http.Redirect(w, r, "/menu", http.StatusSeeOther)
+	p := getCurrentPlayer(r)
+	if p == nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
 	para := r.URL.Query().Get("para")
 	if para == "" {
-		para = player.CurrentPara
+		para = p.CurrentPara
 	}
 
-	p, ok := story.Paragraphs[para]
+	pg, ok := story.Paragraphs[para]
 	if !ok {
 		http.Error(w, "Параграф не найден", http.StatusNotFound)
 		return
 	}
 
-	player.CurrentPara = para
+	p.CurrentPara = para
+
+	if !skipFightCheck {
+		for _, tag := range pg.Tags {
+			if strings.HasPrefix(tag, "fight") {
+				http.Redirect(w, r, "/fight?para="+para, http.StatusSeeOther)
+				return
+			}
+		}
+	}
+	skipFightCheck = false
 
 	data := struct {
 		Player      *game.Player
@@ -135,17 +167,12 @@ func paragraphHandler(w http.ResponseWriter, r *http.Request) {
 		MusicURL    string
 		SaveSuccess bool
 	}{
-		Player:      player,
+		Player:      p,
 		Number:      para,
-		Text:        template.HTML(p.Text),
+		Text:        template.HTML(pg.Text),
 		ImageURL:    "/static/images/" + para + ".jpg",
 		MusicURL:    "/static/music/" + para + ".mp3",
 		SaveSuccess: r.URL.Query().Get("save") == "ok",
-	}
-
-	if strings.Contains(p.Text, "#fight:") {
-		http.Redirect(w, r, "/fight?para="+para, http.StatusSeeOther)
-		return
 	}
 
 	err := templates.ExecuteTemplate(w, "paragraph.html", data)
@@ -248,42 +275,70 @@ func listPlayersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func fightHandler(w http.ResponseWriter, r *http.Request) {
-	if player == nil {
-		http.Redirect(w, r, "/new", http.StatusSeeOther)
+	p := getCurrentPlayer(r)
+	if p == nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
 	para := r.URL.Query().Get("para")
 	if para == "" {
-		para = player.CurrentPara
+		para = p.CurrentPara
 	}
 
-	p, ok := story.Paragraphs[para]
+	pg, ok := story.Paragraphs[para]
 	if !ok {
-		http.NotFound(w, r)
+		http.Error(w, "Параграф не найден", http.StatusNotFound)
 		return
 	}
 
-	enemy, found := game.ParseFightTag(p.Text)
-	if !found {
-		http.Error(w, "В параграфе нет информации о враге", http.StatusNotFound)
-		return
+	if remainingEnemies == 0 {
+		for _, tag := range pg.Tags {
+			if strings.HasPrefix(tag, "fight") {
+				parts := strings.Split(tag, ",")
+				if len(parts) == 2 {
+					num, err := strconv.Atoi(strings.TrimSpace(parts[1]))
+					if err == nil {
+						remainingEnemies = num
+					}
+				} else {
+					remainingEnemies = 1
+				}
+			}
+		}
+		victoryPara, defeatPara = extractNextParas(pg.Text)
 	}
 
-	result := game.Fight(player, enemy)
-	player.CurrentPara = result.ParaAfter
-
-	data := struct {
-		Player *game.Player
-		game.FightResult
-	}{
-		Player:      player,
-		FightResult: result,
+	enemy := game.Enemy{
+		Name: "Враг",
+		Dex:  8,
+		Str:  8,
 	}
+	// Вызов логики боя
+	result := game.Fight(p, enemy)
 
-	err := templates.ExecuteTemplate(w, "fight.html", data)
-	if err != nil {
-		http.Error(w, "Ошибка шаблона: "+err.Error(), http.StatusInternalServerError)
+	skipFightCheck = true
+
+	data := map[string]interface{}{
+		"Player":   p,
+		"Enemy":    result.Enemy,
+		"NextPara": victoryPara,
+		"FailPara": defeatPara,
+	}
+	// Победа или поражение — показываем соответствующую страницу
+	if result.Won {
+		remainingEnemies--
+		if remainingEnemies > 0 {
+			http.Redirect(w, r, "/fight?para="+para, http.StatusSeeOther)
+			return
+		}
+		remainingEnemies = 0
+		tpl, _ := template.ParseFiles("templates/victory.html")
+		tpl.Execute(w, data)
+	} else {
+		remainingEnemies = 0
+		tpl, _ := template.ParseFiles("templates/defeat.html")
+		tpl.Execute(w, data)
 	}
 }
 

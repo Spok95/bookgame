@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вы доказали своё мастерство!</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container victory">
+    <h1>⚔️ Вы доказали своё мастерство! Король не зря выбрал вас!</h1>
+    <p>Сила, ловкость и удача были на вашей стороне. Враг повержен.</p>
+    <form action="/para" method="GET">
+        <input type="hidden" name="para" value="{{.NextPara}}">
+        <button type="submit">Пока ты ждешь, время уходит. Вперед!!!</button>
+    </form>
+</div>
+</body>
+</html>

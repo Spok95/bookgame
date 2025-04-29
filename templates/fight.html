@@ -2,40 +2,32 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>⚔️ Бой с {{.Enemy.Name}}</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <title>Бой с врагом</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-<h2>⚔️ Бой с {{.Enemy.Name}}</h2>
+<div class="container">
+  <div class="card">
+    <h2>⚔️ Бой!</h2>
 
-<div>
-  <strong>Вы:</strong> {{.Player.Name}} (СИЛА: {{.Player.Strength}})
-  <br>
-  <strong>Враг:</strong> {{.Enemy.Name}} (СИЛА: {{.Enemy.Str}})
+    <div id="battle-log" style="background: #fff8e1; padding: 1em; margin-bottom: 1em; border-radius: 12px; min-height: 150px; overflow-y: auto;">
+      <p>Враг: {{.Enemy.Name}} | Ловкость: {{.Enemy.Dex}} | Сила: {{.Enemy.Str}}</p>
+      <p>Вы: {{.Player.Name}} | Ловкость: {{.Player.Dex}} | Сила: {{.Player.Strength}}</p>
+    </div>
+
+    <div>
+      <img id="dice" src="/static/images/dice-1.png" alt="Кубик" width="100">
+      <div id="dice-result"></div>
+    </div>
+
+    <div style="margin-top: 1em;">
+      <button id="roll-button" onclick="startAttack()">🔪 Атаковать</button>
+    </div>
+
+    <p><a href="/menu">🏰 В меню</a></p>
+  </div>
 </div>
 
-<table border="1" cellpadding="5" cellspacing="0">
-  <tr>
-    <th>Раунд</th><th>Бросок игрока</th><th>Бросок врага</th><th>Победитель</th><th>СИЛА игрока</th><th>СИЛА врага</th>
-  </tr>
-  {{range .Log}}
-  <tr>
-    <td>{{.Round}}</td>
-    <td>{{.PlayerRoll}}</td>
-    <td>{{.EnemyRoll}}</td>
-    <td>{{.Winner}}</td>
-    <td>{{.PlayerStr}}</td>
-    <td>{{.EnemyStr}}</td>
-  </tr>
-  {{end}}
-</table>
-
-<h3>
-  {{if .Won}}🎉 Победа!
-  {{else}}☠ Поражение...
-  {{end}}
-</h3>
-
-<a href="/para?para={{.Player.CurrentPara}}">➡ Продолжить</a>
+<script src="/static/js/fight.js" defer></script>
 </body>
 </html>

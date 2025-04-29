@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
 	"github.com/Spok95/bookgame/game"
 	"html/template"
 	"log"
 	"math/rand/v2"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -234,67 +234,90 @@ func FightHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	para := r.URL.Query().Get("para")
-	if para == "" {
-		para = p.CurrentPara
-	}
-
-	pg, ok := Story.Paragraphs[para]
-	if !ok {
-		http.Error(w, "Параграф не найден", http.StatusNotFound)
-		return
-	}
-
-	if remainingEnemies == 0 {
-		for _, tag := range pg.Tags {
-			if strings.HasPrefix(tag, "fight") {
-				parts := strings.Split(tag, ",")
-				if len(parts) == 2 {
-					num, err := strconv.Atoi(strings.TrimSpace(parts[1]))
-					if err == nil {
-						remainingEnemies = num
-					}
-				} else {
-					remainingEnemies = 1
-				}
-			}
-		}
-		victoryPara, defeatPara = game.ExtractNextParas(pg.Text)
-	}
-
-	enemy := game.Enemy{
+	// Параграф пока игнорируем для теста
+	enemy := &game.Enemy{
 		Name: "Враг",
 		Dex:  8,
 		Str:  8,
 	}
-	// Вызов логики боя
-	result := game.Fight(p, enemy)
 
-	skipFightCheck = true
+	tmpl := template.Must(template.ParseFiles("templates/fight.html"))
 
-	data := map[string]interface{}{
-		"Player":   p,
-		"Enemy":    result.Enemy,
-		"NextPara": victoryPara,
-		"FailPara": defeatPara,
+	data := struct {
+		Title  string
+		Player *game.Player
+		Enemy  *game.Enemy
+	}{
+		Title:  "Бой с врагом",
+		Player: p,
+		Enemy:  enemy,
 	}
-	// Победа или поражение — показываем соответствующую страницу
-	if result.Won {
-		remainingEnemies--
-		if remainingEnemies > 0 {
-			http.Redirect(w, r, "/fight?para="+para, http.StatusSeeOther)
-			return
-		}
-		remainingEnemies = 0
-		tpl, _ := template.ParseFiles("templates/victory.html")
-		tpl.Execute(w, data)
+
+	tmpl.Execute(w, data)
+}
+
+type AttackResult struct {
+	PlayerRoll  int    `json:"PlayerRoll"`
+	EnemyRoll   int    `json:"EnemyRoll"`
+	Result      string `json:"Result"`
+	BattleEnded bool   `json:"BattleEnded"`
+}
+
+var EnemyHP = 10
+
+func AttackHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	playerRoll := rand.IntN(6) + 1
+	enemyRoll := rand.IntN(6) + 1
+
+	playerAttack := playerRoll + Player.Dex
+	enemyAttack := enemyRoll + 8
+
+	result := ""
+	battleEnded := false
+
+	if playerAttack > enemyAttack {
+		EnemyHP -= 2
+		result = "Вы нанесли урон противнику! (-2 HP)"
+	} else if playerAttack < enemyAttack {
+		Player.Strength -= 2
+		result = "Противник нанес вам урон! (-2 HP)"
 	} else {
-		remainingEnemies = 0
-		tpl, _ := template.ParseFiles("templates/defeat.html")
-		tpl.Execute(w, data)
+		result = "Парирование, без урона."
 	}
+
+	if EnemyHP <= 0 {
+		result += " 🎉 Победа!"
+		battleEnded = true
+	} else if Player.Strength <= 0 {
+		result += " ☠️ Вы проиграли!"
+		battleEnded = true
+	}
+
+	// (Пока без реального вычитания СИЛЫ — добавим позже.)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(AttackResult{
+		PlayerRoll:  playerRoll,
+		EnemyRoll:   enemyRoll,
+		Result:      result,
+		BattleEnded: battleEnded,
+	})
 }
 
 func randInt(min, max int) int {
 	return rand.IntN(max-min+1) + min
+}
+
+func RollDiceHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	dice := rand.IntN(6) + 1
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int{"roll": dice})
 }

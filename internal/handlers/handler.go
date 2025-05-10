@@ -148,36 +148,6 @@ func SavePlayerHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/para?para="+Player.CurrentPara+"&save=ok", http.StatusSeeOther)
 }
 
-func LoadPlayerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		name := r.FormValue("name")
-		p, err := game.LoadPlayer(name)
-		if err != nil {
-			renderLoadForm(w, "Игрок не найден: "+name)
-			return
-		}
-		Player = p
-		http.Redirect(w, r, "/para?para="+p.CurrentPara, http.StatusSeeOther)
-		return
-	}
-
-	name := r.URL.Query().Get("name")
-	if name != "" {
-		p, err := game.LoadPlayer(name)
-		if err != nil {
-			http.Error(w, "Ошибка загрузки игрока: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		Player = p
-		http.Redirect(w, r, "/para?para="+Player.CurrentPara, http.StatusSeeOther)
-		return
-	} else {
-		Player = nil
-	}
-
-	renderLoadForm(w, "")
-}
-
 func DeletePlayerHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Метод не разрешён", http.StatusSeeOther)
@@ -200,13 +170,6 @@ func DeletePlayerHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/players", http.StatusSeeOther)
 }
 
-func renderLoadForm(w http.ResponseWriter, errMsg string) {
-	tmpl, _ := template.ParseFiles("templates/load_player.html")
-	tmpl.Execute(w, struct {
-		Error string
-	}{Error: errMsg})
-}
-
 func ListPlayersHandler(w http.ResponseWriter, r *http.Request) {
 	files, err := os.ReadDir("players")
 	if err != nil {
@@ -225,6 +188,21 @@ func ListPlayersHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, struct {
 		Names []string
 	}{names})
+}
+
+func LoadFromListHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+	p, err := game.LoadPlayer(name)
+	if err != nil {
+		http.Error(w, "Ошибка загрузки игрока: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	Player = p
+	http.Redirect(w, r, "/para?para="+p.CurrentPara, http.StatusSeeOther)
 }
 
 func FightHandler(w http.ResponseWriter, r *http.Request) {

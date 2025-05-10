@@ -11,7 +11,7 @@
     <ul>
         {{range .Names}}
         <li>
-            <a href="/load?name={{.}}">{{.}}</a>
+            <a href="/load-player?name={{.}}">{{.}}</a>
             <form method="POST" action="/delete" style="display: inline;">
                 <input type="hidden" name="name" value="{{.}}">
                 <button type="submit" onclick="return confirm('Удалить игрока {{.}}?')">✖</button>

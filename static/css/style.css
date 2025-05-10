@@ -16,7 +16,7 @@ body {
     top: 5%;
     width: 750px;
     height: 85%;
-    background-color: #fffaf0;
+    background-color: rgba(255, 250, 240, 0.85);
     border: 4px double #aa7733;
     border-radius: 16px;
     overflow-y: auto;
@@ -127,4 +127,50 @@ p {
 
 .paragraph a:hover {
     text-decoration: underline;
+}
+
+/* 🏰 Главное меню */
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.menu-container h2 {
+    font-family: 'UnifrakturCook', cursive, Georgia, serif;
+    font-size: 32px;
+    margin-bottom: 1em;
+    color: #3b2a1a;
+}
+
+/* Стилизация кнопок меню */
+.menu-container .menu-button {
+    background: #523910;
+    color: #fffbe6;
+    padding: 0.6em 1.4em;
+    margin: 0.4em 0;
+    border: 3px solid #d4c096;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    width: 200px;
+    transition: all 0.25s ease;
+}
+
+.menu-container .menu-button:hover {
+    background: #7a5520;
+    border-color: #fff;
+    transform: translateY(-2px);
+}
+
+.menu-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-top: 1em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }

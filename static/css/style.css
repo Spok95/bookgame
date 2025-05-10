@@ -1,22 +1,27 @@
 body {
+    margin: 0;
+    padding: 0;
     background: url('/static/images/parchment.jpg') no-repeat center center fixed;
     background-size: cover;
-    font-family: 'Georgia', serif;
-    font-size: 18px;
-    color: #2c2c2c;
-    margin: 0;
-    padding: 2em;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-family: Georgia, serif;
 }
 
-.container, .card {
-    max-width: 900px;
-    margin: auto;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 2em;
+.container {
+    position: fixed;
+    right: 2%;
+    top: 5%;
+    width: 750px;
+    height: 85%;
+    background-color: #fffaf0;
+    border: 4px double #aa7733;
     border-radius: 16px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    border: 10px double #a87c4f;
-    outline: 3px solid #d4b48a;
+    overflow-y: auto;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    padding: 20px;
 }
 
 /* 🎮 Верхняя панель */

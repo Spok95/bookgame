@@ -80,9 +80,13 @@ async function startAttack() {
 
         if (data.BattleEnded) {
             const endMsg = document.createElement('p');
-            endMsg.innerHTML = `<strong>Бой окончен!</strong>`;
+            endMsg.innerHTML = `<strong>${data.Victory ? "Вы победили!" : "Вы проиграли!"}</strong>`;
             battleLog.appendChild(endMsg);
             rollButton.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = data.Victory ? "/victory" : "/defeat";
+            }, 2000);
         } else {
             rollButton.disabled = false;
         }

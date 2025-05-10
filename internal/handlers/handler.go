@@ -300,11 +300,12 @@ func AttackHandler(w http.ResponseWriter, r *http.Request) {
 
 	// (Пока без реального вычитания СИЛЫ — добавим позже.)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(AttackResult{
-		PlayerRoll:  playerRoll,
-		EnemyRoll:   enemyRoll,
-		Result:      result,
-		BattleEnded: battleEnded,
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"PlayerRoll":  playerRoll,
+		"EnemyRoll":   enemyRoll,
+		"Result":      result,
+		"BattleEnded": battleEnded,
+		"Victory":     Player.Strength > 0, // если игрок жив — победа
 	})
 }
 

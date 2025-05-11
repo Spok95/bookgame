@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Выбор игрока</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h2>Выберите игрока</h2>
+    <ul>
+        {{range .Names}}
+        <li>
+            <a href="/load-player?name={{.}}">{{.}}</a>
+            <form method="POST" action="/delete" style="display: inline;">
+                <input type="hidden" name="name" value="{{.}}">
+                <button type="submit" onclick="return confirm('Удалить игрока {{.}}?')">✖</button>
+            </form>
+        </li>
+        {{else}}
+        <li>Нет сохранённых игроков.</li>
+        {{end}}
+        <a href="/menu" class="btn blue">← Назад в меню</a>
+    </ul>
+</div>
+</body>
+</html>

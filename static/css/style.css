@@ -1,0 +1,176 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url('/static/images/parchment.jpg') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-family: Georgia, serif;
+}
+
+.container {
+    position: fixed;
+    right: 2%;
+    top: 5%;
+    width: 750px;
+    height: 85%;
+    background-color: rgba(255, 250, 240, 0.85);
+    border: 4px double #aa7733;
+    border-radius: 16px;
+    overflow-y: auto;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    padding: 20px;
+}
+
+/* 🎮 Верхняя панель */
+.top-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 2em;
+    margin-bottom: 1.5em;
+}
+
+.player-info, .inventory {
+    flex: 1;
+    min-width: 280px;
+    padding: 1em;
+    background: #fff8e1;
+    border: 6px double #bfa76f;
+    border-radius: 14px;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.1), 0 0 6px rgba(0,0,0,0.05);
+    font-size: 16px;
+}
+
+.inventory ul {
+    list-style: square inside;
+    padding-left: 1em;
+}
+
+/* 📌 Кнопки */
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5em;
+    margin-bottom: 1.5em;
+}
+
+button, .button, .btn, .options a {
+    background: #523910;
+    color: white;
+    padding: 0.5em 1.2em;
+    /*height: 40px;*/
+    min-width: 120px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: background 0.3s ease;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+}
+
+button:hover, .button:hover, .btn:hover, .options a:hover {
+    background: #523910;
+}
+
+/* 🖼 Изображения */
+img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-bottom: 1em;
+}
+
+/* Заголовки */
+h2, h3 {
+    color: #4b3621;
+    margin-top: 1em;
+}
+
+h3 {
+    margin-bottom: 0.5em;
+}
+
+/* 📜 Основной текст */
+p {
+    text-align: justify;
+    margin-bottom: 1em;
+}
+
+/* 🔁 Переходы */
+.options {
+    margin-top: 2em;
+}
+
+.options a {
+    margin-right: 0.5em;
+}
+
+.paragraph a {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.paragraph a:hover {
+    text-decoration: underline;
+}
+
+/* 🏰 Главное меню */
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.menu-container h2 {
+    font-family: 'UnifrakturCook', cursive, Georgia, serif;
+    font-size: 32px;
+    margin-bottom: 0.5em;
+    color: #3b2a1a;
+}
+
+/* Стилизация кнопок меню */
+.menu-container .menu-button {
+    background: #523910;
+    color: #fffbe6;
+    padding: 0.6em 1.4em;
+    margin: 0.3em 0;
+    border: 3px solid #d4c096;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    width: 200px;
+    transition: all 0.25s ease;
+}
+
+.menu-container .menu-button:hover {
+    background: #7a5520;
+    border-color: #fff;
+    transform: translateY(-2px);
+}
+
+.menu-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-top: 1em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}

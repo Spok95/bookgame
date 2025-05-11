@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Параграф {{.Number}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="top-panel">
+        <div class="player-info">
+            <p><strong>👤 Персонаж:</strong> {{.Player.Name}}</p>
+            <p>⚔️ Навык: {{.Player.Skill}}</p>
+            <p>🧠 Ловкость: {{.Player.Dex}} |
+                💪 Сила: {{.Player.Strength}} |
+                🍀 Удача: {{.Player.Luck}} |
+                🎖️ Честь: {{.Player.Honor}}</p>
+            <p>💰 Деньги: {{.Player.Money.String}}</p>
+        </div>
+
+        {{if .Player.Inventory}}
+        <div class="inventory">
+            <h3>👜 Инвентарь</h3>
+            <ul>
+                {{range .Player.Inventory}}<li>{{.}}</li>{{end}}
+            </ul>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="button-row">
+        <a href="/" class="button">🏠 В меню</a>
+        <a href="/load-list" class="button">📘 Список героев</a>
+        <a href="/new" class="button">🎮 Новая игра</a>
+        <a href="/save" class="button">💾 Сохранить</a>
+    </div>
+
+    <h2>{{.Number}}</h2>
+
+    <img src="{{.ImageURL}}" alt="Иллюстрация" onerror="this.style.display='none'">
+
+    <div class="paragraph">
+        {{if .HasLuck}}
+            <p>{{.Text}}</p>
+            <div id="luck-section">
+                <button id="luckButton" class="btn blue" onclick="checkLuck()">🎲 Испытать удачу</button>
+                <div id="luck-message" style="margin-top: 1em;"></div>
+                <div id="luck-links" style="margin-top: 1em; display: none;">
+                    <a id="luck-success" href="{{.SuccessLink}}" class="btn green">✅ Вперед счастливчик</a>
+                    <a id="luck-fail" href="{{.FailLink}}" class="btn red">❌ Не вешать нос, неудачи нас закаляют</a>
+                </div>
+            </div>
+        {{else}}
+            {{.Text}}
+        {{end}}
+    </div>
+
+    {{if .SaveSuccess}}
+    <p class="save-success"><strong>✅ Сохранено!</strong></p>
+    {{end}}
+</div>
+<script src="/static/js/luck.js" defer></script>
+</body>
+</html>

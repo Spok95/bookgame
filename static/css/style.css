@@ -60,10 +60,10 @@ body {
 }
 
 button, .button, .btn, .options a {
-    background: #2a61d0;
+    background: #523910;
     color: white;
     padding: 0.5em 1.2em;
-    height: 44px;
+    /*height: 40px;*/
     min-width: 120px;
     border: none;
     border-radius: 8px;
@@ -80,11 +80,11 @@ button, .button, .btn, .options a {
     line-height: 1;
     text-align: center;
     vertical-align: middle;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 button:hover, .button:hover, .btn:hover, .options a:hover {
-    background: #1b439e;
+    background: #523910;
 }
 
 /* 🖼 Изображения */
@@ -140,7 +140,7 @@ p {
 .menu-container h2 {
     font-family: 'UnifrakturCook', cursive, Georgia, serif;
     font-size: 32px;
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
     color: #3b2a1a;
 }
 
@@ -149,10 +149,10 @@ p {
     background: #523910;
     color: #fffbe6;
     padding: 0.6em 1.4em;
-    margin: 0.4em 0;
+    margin: 0.3em 0;
     border: 3px solid #d4c096;
     border-radius: 12px;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: bold;
     cursor: pointer;
     text-decoration: none;

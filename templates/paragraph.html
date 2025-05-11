@@ -40,12 +40,25 @@
     <img src="{{.ImageURL}}" alt="Иллюстрация" onerror="this.style.display='none'">
 
     <div class="paragraph">
-        {{.Text}}
+        {{if .HasLuck}}
+            <p>{{.Text}}</p>
+            <div id="luck-section">
+                <button id="luckButton" class="btn blue" onclick="checkLuck()">🎲 Испытать удачу</button>
+                <div id="luck-message" style="margin-top: 1em;"></div>
+                <div id="luck-links" style="margin-top: 1em; display: none;">
+                    <a id="luck-success" href="{{.SuccessLink}}" class="btn green">✅ Вперед счастливчик</a>
+                    <a id="luck-fail" href="{{.FailLink}}" class="btn red">❌ Не вешать нос, неудачи нас закаляют</a>
+                </div>
+            </div>
+        {{else}}
+            {{.Text}}
+        {{end}}
     </div>
 
     {{if .SaveSuccess}}
     <p class="save-success"><strong>✅ Сохранено!</strong></p>
     {{end}}
 </div>
+<script src="/static/js/luck.js" defer></script>
 </body>
 </html>

@@ -37,6 +37,7 @@ func main() {
 	http.HandleFunc("/start", handlers.StartHandler)
 	http.HandleFunc("/roll", handlers.RollDiceHandler)
 	http.HandleFunc("/attack", handlers.AttackHandler)
+	http.HandleFunc("/luck", handlers.LuckHandler)
 
 	// Статика
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

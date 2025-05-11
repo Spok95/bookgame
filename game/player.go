@@ -18,6 +18,7 @@ type Player struct {
 	CurrentPara string   `json:"current_para"`
 	Inventory   []string `json:"inventory"`
 	Money       Money    `json:"money"`
+	LuckStreak  int      `json:"luck_streak"`
 }
 
 // NewPlayer — создаёт нового игрока
@@ -32,6 +33,7 @@ func NewPlayer(name, skill string, dex, strength, luck int) *Player {
 		CurrentPara: "1",
 		Inventory:   make([]string, 0),
 		Money:       Money{Coins: 15, Sous: 0},
+		LuckStreak:  0,
 	}
 }
 

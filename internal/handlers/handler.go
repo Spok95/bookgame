@@ -112,6 +112,24 @@ func ParagraphHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	skipFightCheck = false
 
+	var successLink, failLink string
+	var hasLuck bool
+
+	for _, tag := range pg.Tags {
+		if strings.HasPrefix(tag, "luck") {
+			hasLuck = true
+			parts := strings.Fields(tag)
+			for _, part := range parts {
+				if strings.HasPrefix(part, "success=") {
+					successLink = "/para?para=" + strings.TrimPrefix(part, "success=")
+				} else if strings.HasPrefix(part, "fail=") {
+					failLink = "/para?para=" + strings.TrimPrefix(part, "fail=")
+				}
+			}
+			break
+		}
+	}
+
 	data := struct {
 		Player      *game.Player
 		Number      string
@@ -119,6 +137,9 @@ func ParagraphHandler(w http.ResponseWriter, r *http.Request) {
 		ImageURL    string
 		MusicURL    string
 		SaveSuccess bool
+		HasLuck     bool
+		SuccessLink string
+		FailLink    string
 	}{
 		Player:      p,
 		Number:      para,
@@ -126,6 +147,9 @@ func ParagraphHandler(w http.ResponseWriter, r *http.Request) {
 		ImageURL:    "/static/images/" + para + ".jpg",
 		MusicURL:    "/static/music/" + para + ".mp3",
 		SaveSuccess: r.URL.Query().Get("save") == "ok",
+		HasLuck:     hasLuck,
+		SuccessLink: successLink,
+		FailLink:    failLink,
 	}
 
 	err := templates.ExecuteTemplate(w, "paragraph.html", data)
@@ -299,4 +323,59 @@ func RollDiceHandler(w http.ResponseWriter, r *http.Request) {
 	dice := rand.IntN(6) + 1
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]int{"roll": dice})
+}
+
+func LuckHandler(w http.ResponseWriter, r *http.Request) {
+	player := getCurrentPlayer(r)
+	if player == nil {
+		http.Error(w, "игрок не найден", http.StatusSeeOther)
+		return
+	}
+	dice := rand.IntN(6) + 1
+	isLucky := dice%2 == 0
+
+	var next string
+	var message string
+
+	if isLucky {
+		player.LuckStreak++
+		message = getLuckMessage(player.LuckStreak, true)
+		next = r.URL.Query().Get("success")
+	} else {
+		player.LuckStreak = 0
+		message = getLuckMessage(player.LuckStreak, false)
+		next = r.URL.Query().Get("fail")
+	}
+
+	type LuckResult struct {
+		Lucky   bool   `json:"lucky"`
+		Message string `json:"message"`
+		Next    string `json:"next"`
+		Roll    int    `json:"Roll"`
+	}
+
+	resp := LuckResult{
+		Lucky:   isLucky,
+		Message: message,
+		Next:    next,
+		Roll:    dice,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+func getLuckMessage(streak int, lucky bool) string {
+	if lucky {
+		switch streak {
+		case 1:
+			return "Сегодня удача на твоей стороне!"
+		case 2:
+			return "Опять удача — ты точно любимец фортуны!"
+		case 3:
+			return "Три удачи подряд! Ты непобедим!"
+		default:
+			return "Если бы кто сказал не поверил, ты везучее солнце Франции!"
+		}
+	}
+	return "Фортуна отвернулась... Надеюсь не навсегда!"
 }
